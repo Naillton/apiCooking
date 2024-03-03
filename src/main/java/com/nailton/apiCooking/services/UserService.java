@@ -7,6 +7,7 @@ import com.nailton.apiCooking.repositories.UserRepository;
 import org.jvnet.hk2.annotations.Service;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 import java.time.Instant;
 import java.time.LocalDateTime;
@@ -28,6 +29,8 @@ public class UserService {
     }
 
     public void insertUser(User user) {
+        String hashedPass = encodePass(user.getPassword());
+        user.setPassword(hashedPass);
         this.userRepository.save(user);
     }
 
@@ -36,8 +39,9 @@ public class UserService {
     }
 
     public String findUserByEmailAndPassword(String email, String password) {
-        User user = this.userRepository.findUserByEmailAndPassword(email, password);
-        if (user != null) {
+        User user = this.userRepository.findUserByEmail(email);
+        boolean isTrue = this.decodePass(password, user.getPassword());
+        if (isTrue) {
             return generateToken(user);
         } else {
             return "User Not Exist";
@@ -66,5 +70,13 @@ public class UserService {
                 .build()
                 .verify(token)
                 .getSubject();
+    }
+
+    public String encodePass(String password) {
+        return new BCryptPasswordEncoder().encode(password);
+    }
+
+    private boolean decodePass(String rawPass, String encodedPass) {
+        return new BCryptPasswordEncoder().matches(rawPass, encodedPass);
     }
 }
