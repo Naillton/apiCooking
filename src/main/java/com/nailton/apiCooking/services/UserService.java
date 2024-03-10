@@ -38,6 +38,23 @@ public class UserService {
         return (List<User>) this.userRepository.findAll();
     }
 
+    public User findUserById(UUID id) {
+        return this.userRepository.findById(id).orElse(null);
+    }
+
+    public void updateUser(User user, UUID id) {
+        User updateUser = this.findUserById(id);
+        String hashedPass = encodePass(user.getPassword());
+        user.setPassword(hashedPass);
+        updateUser.setEmail(user.getEmail());
+        updateUser.setPassword(user.getPassword());
+        this.userRepository.save(updateUser);
+    }
+
+    public void deleteUser(UUID id) {
+        this.userRepository.deleteById(id);
+    }
+
     public String findUserByEmailAndPassword(String email, String password) {
         User user = this.userRepository.findUserByEmail(email);
         boolean isTrue = this.decodePass(password, user.getPassword());
