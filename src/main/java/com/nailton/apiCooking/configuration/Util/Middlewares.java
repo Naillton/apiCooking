@@ -15,4 +15,8 @@ public class Middlewares {
         boolean isValidEmail = patternMatches(email);
         return isValidEmail && password.length() >= 8;
     }
+
+    public static boolean validCredentialsRevenues(String title, String products, String description) {
+        return (title.length() >= 3) && (products.length() >= 10) && (description.length() >= 10);
+    }
 }
